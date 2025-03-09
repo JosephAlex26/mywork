@@ -1,0 +1,29 @@
+#groupBy,aggregation,count
+from pyspark.sql import SparkSession
+# Initialize a Spark session
+spark = SparkSession.builder.master("local").appName("DataFrame Example").getOrCreate()
+
+# Define the data as a list of tuples
+from pyspark.sql.functions import *
+
+data = [(1, "Mark Ray", "AB"),
+        (2, "Peter Smith", "CD"),
+        (1, "Mark Ray", "EF"),
+        (2, "Peter Smith", "GH"),
+        (2, "Peter Smith", "CD"),
+        (3, "Kate", "IJ")]
+
+myschema = ["custid", "custname", "address"]
+
+df = spark.createDataFrame(data, schema=myschema)
+df.show()
+
+#drop the duplicates
+
+dfc = df.dropDuplicates()
+dfc.show()
+
+#collect the address by custname
+
+df2=dfc.groupBy("custid").agg(collect_list("address").alias ("collection"))
+df2.show()

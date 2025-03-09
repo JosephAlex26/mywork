@@ -1,0 +1,41 @@
+#groupBy,aggregation,count
+from pyspark.sql import SparkSession
+
+# Initialize a Spark session
+spark = SparkSession.builder.master("local").appName("DataFrame Example").getOrCreate()
+
+# Define the data as a list of tuples
+data = [
+    ('sai', 'chn', 1),
+    ('sai', 'hyd', 2),
+    ('sai', 'chn', 2),
+    ('sai', 'hyd', 1),
+    ('zeyo', 'chn', 2),
+    ('zeyo', 'hyd', 3),
+    ('zeyo', 'chn', 2),
+    ('zeyo', 'hyd', 1)
+]
+
+# Create a DataFrame using the data and specifying the column names
+df = spark.createDataFrame(data, ["name", "city", "amount"]).coalesce(1)
+
+# Show the DataFrame
+df.show()
+
+#scenario1- fetch total amount by name
+
+df1=df.groupBy("name").agg(sum("amount").alias("total")).show()
+
+#scenario2 - fetch total amount and count by name
+df2=df.groupBy("name").agg(sum("amount").alias("total"),
+                           count("amount").alias("cnt")).show()
+						  
+#scenario 3 - fetch total amount and count by name and city
+df3=df.groupBy("name","city").agg(sum("amount").alias("total"),
+                                  count("amount").alias("cnt")).show()
+
+#scenario 4 - collect the amount by name
+df4=df.groupBy("name","city").agg(collect_list("amount").alias ("collection")).show()
+
+
+

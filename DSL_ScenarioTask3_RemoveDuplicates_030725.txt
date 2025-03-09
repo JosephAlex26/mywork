@@ -1,0 +1,12 @@
+#Scenario_Task_3 || remove duplicate record
+from pyspark.sql.functions import *
+data = [(1,"John","Testing",5000),
+        (2,"Tim","Development",6000),
+        (3,"John","Testing",5000),
+        (4,"Sky","Production",8000)]
+df = spark.createDataFrame(data,["id","name","Dept","Salary"])
+df.show()
+
+#remove duplicate - dept record
+
+finaldf = df.dropDuplicates(["name"]).orderBy("id").show()

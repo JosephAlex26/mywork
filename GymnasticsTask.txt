@@ -1,0 +1,28 @@
+data = sc.textFile('dt.txt')
+print("======Raw data========")
+data.foreach(print)
+
+#step 2 split the data
+
+mapsplit = data.map(lambda x : x.split(','))
+print("=======Split Data")
+mapsplit.foreach(print)
+
+#step 3 define column names
+#import namedtuple method
+
+from collections import namedtuple
+
+columns = namedtuple('columns',['tno','tdate','amount','category','product','mode'])
+#step 4 impose column name
+schemardd = mapsplit.map(lambda x : columns(x[0],x[1],x[2],x[3],x[4],x[5]))
+#step 5 filter required column
+
+fildata = schemardd.filter(lambda x : 'Gymnastics' in x.product)
+print('=======Gym Data===========')
+fildata.foreach(print)
+
+#convert RDD to Dataframe
+
+df = fildata.toDF()
+df.show()

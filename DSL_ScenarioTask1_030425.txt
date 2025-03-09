@@ -1,0 +1,38 @@
+#Scenario_Task_1
+from pyspark.sql.functions import *
+data1 = [
+    (1,"Henry"),
+    (2,"Smith"),
+    (3,"Hall")
+]
+
+data2 = [
+    (1,100),
+    (2,500),
+    (4,1000)
+]
+
+columns1 = ["id","name"]
+columns2 = ["id","salary"]
+#converting list to rdd
+rdd1 = sc.parallelize(data1,1)
+rdd2 = sc.parallelize(data2,1)
+#converting from rdd to DF
+df1 = rdd1.toDF(columns1)
+df2 = rdd2.toDF(columns2)
+
+#print DF data
+df1.show()
+df2.show()
+
+#Since we need all the values from left table - df1, we go for left join.
+
+left = df1.join(df2,["id"],"left")
+print("out put is:")
+left.show()
+
+#to change null value to zero(0), use na.fill(0)
+
+finaldf = left.na.fill(0).show()
+
+#finalsort = finaldf.orderBy(col("id")).show(truncate=False)
