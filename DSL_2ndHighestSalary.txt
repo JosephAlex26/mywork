@@ -1,0 +1,35 @@
+#Windowing - Partition,rank,filter
+
+from pyspark.sql.functions import *
+data = [
+    ("DEPT1", 1000),
+    ("DEPT1", 700),
+    ("DEPT1", 500),
+    ("DEPT2", 400),
+    ("DEPT2", 200),
+    ("DEPT3", 500),
+    ("DEPT3", 200)]
+
+columns = ["dept", "salary"]
+
+df = spark.createDataFrame(data, columns)
+
+df.show()
+
+#step 1 : create Window, import Window, col should order
+from pyspark.sql.window import Window
+dfwindow = Window.partitionBy ("dept").orderBy(col("salary").desc())
+
+#step 2 : applying with window on dataframe
+
+dfrank = df.withColumn("drank",dense_rank().over(dfwindow))
+dfrank.show()
+
+#step 3 : filter rank = 2
+dffil = dfrank.filter("drank = 2")
+dffil.show()
+
+#step 4 : drop drank col
+
+finaldf = dffil.drop("drank")
+finaldf.show()

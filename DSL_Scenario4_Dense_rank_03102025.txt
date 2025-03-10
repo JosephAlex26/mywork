@@ -1,0 +1,43 @@
+from pyspark.sql import SparkSession
+from pyspark.sql.types import StructType, StructField, IntegerType, StringType
+
+# Initialize Spark session
+spark = SparkSession.builder.master("local").appName("Example").getOrCreate()
+
+data1 = [
+    (1, "A", "A", 1000000),
+    (2, "B", "A", 2500000),
+    (3, "C", "G", 500000),
+    (4, "D", "G", 800000),
+    (5, "E", "W", 9000000),
+    (6, "F", "W", 2000000),
+]
+df1 = spark.createDataFrame(data1, ["emp_id", "name", "dept_id", "salary"])
+df1.show()
+
+data2 = [("A", "AZURE"), ("G", "GCP"), ("W", "AWS")]
+df2 = spark.createDataFrame(data2, ["dept_id1", "dept_name"])
+df2.show()
+
+#step1 : Do inner join to join dept_name based on dept_id
+innerdf = df1.join(df2, df1["dept_id"]==df2["dept_id1"] , "inner").drop("dept_id1")
+innerdf.show()
+
+#Step2: for ranking create windowing
+
+from pyspark.sql.window import Window
+
+dfwindow = Window.partitionBy ("dept_id").orderBy(col("salary"))
+
+#step 3: dense_rank() in asc order
+dfrank = innerdf.withColumn("drank",dense_rank().over(dfwindow))
+dfrank.show()
+
+#Step 4: filter drank = 1, it fetches the minimum salary based on dept id
+dfilter = dfrank.filter("drank = 1")
+dfilter.show()
+
+#step 5: select required columns
+finaldf = dfilter.select("emp_id","name","dept_name",'salary')
+finaldf.show()
+#########END######
